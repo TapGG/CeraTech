@@ -1,0 +1,15 @@
+G90          ; Absolute positioning
+M82          ; Absolute extrusion
+G92 X0 Y0 Z0 E0 ; Reset all axes
+
+G1 Z5 F300     ; Raise Z to avoid dragging
+G1 X45 Y45 F1500 ; Move to square starting corner
+G1 Z0 F300     ; Lower to layer height
+
+; Draw the square
+G1 X85 Y45 E5 F1000
+G1 X85 Y85 E10
+G1 X45 Y85 E15
+G1 X45 Y45 E20
+
+G1 Z5 F300     ; Lift Z after drawing
