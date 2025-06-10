@@ -13,7 +13,7 @@ class PrinterControlGUI:
         self.root.configure(bg='#f0f0f0')
         
          # Remove the default title bar
-        self.root.overrideredirect(True)
+        # self.root.overrideredirect(True)
         
         # Create a custom title bar
         self.title_bar = tk.Frame(self.root, bg='#2c3e50', relief='raised', bd=0)
@@ -23,7 +23,7 @@ class PrinterControlGUI:
         try:
             # Replace 'logo.png' with your image path
             self.logo_image = Image.open("CeraTech.png")
-            self.logo_image = self.logo_image.resize((30, 30), Image.LANCZOS)
+            self.logo_image = self.logo_image.resize((300, 100), Image.LANCZOS)
             self.logo_photo = ImageTk.PhotoImage(self.logo_image)
             self.logo_label = tk.Label(self.title_bar, image=self.logo_photo, bg='#2c3e50')
             self.logo_label.image = self.logo_photo  # Keep a reference
