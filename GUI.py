@@ -1,37 +1,62 @@
-import uploader
-
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk  # Required for image handling
 
 class PrinterControlGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("CeraTech")
         self.root.geometry("600x400")
-        self.root.configure(bg='#f0f0f0')
+        self.root.configure(bg='#f0f0f0')  # Main window background
         
-         # Remove the default title bar
-        # self.root.overrideredirect(True)
+        # Remove default window decorations (title bar)
+        self.root.overrideredirect(True)
         
-        # Create a custom title bar
-        self.title_bar = tk.Frame(self.root, bg='#2c3e50', relief='raised', bd=0)
-        self.title_bar.pack(fill=tk.X)
+        # ===== TOP BAR (LOGO + DRAG AREA + CLOSE BUTTON) =====
+        self.top_frame = tk.Frame(self.root, bg='#f0f0f0')  # Match window background
+        self.top_frame.pack(fill=tk.X, pady=(5, 0))  # Small padding at top
         
-        # Add your photo to the title bar
+        # 1. Logo (left side)
         try:
-            # Replace 'logo.png' with your image path
-            self.logo_image = Image.open("CeraTech.png")
-            self.logo_image = self.logo_image.resize((300, 100), Image.LANCZOS)
-            self.logo_photo = ImageTk.PhotoImage(self.logo_image)
-            self.logo_label = tk.Label(self.title_bar, image=self.logo_photo, bg='#2c3e50')
-            self.logo_label.image = self.logo_photo  # Keep a reference
-            self.logo_label.pack(side=tk.LEFT, padx=5, pady=2)
+            self.logo_img = Image.open("logo.png").convert("RGBA")  # Supports transparency
+            self.logo_img = self.logo_img.resize((300, 100), Image.LANCZOS)
+            self.logo_tk = ImageTk.PhotoImage(self.logo_img)
+            self.logo_label = tk.Label(
+                self.top_frame, 
+                image=self.logo_tk, 
+                bg='#f0f0f0'  # Match window bg
+            )
+            self.logo_label.image = self.logo_tk  # Keep reference
+            self.logo_label.pack(side=tk.LEFT, padx=10)
+        except Exception as e:
+            print(f"Logo error: {e}")
+            # Fallback text if image fails
+            tk.Label(
+                self.top_frame, 
+                text="CeraTech", 
+                font=('Arial', 12), 
+                bg='#f0f0f0'
+            ).pack(side=tk.LEFT, padx=10)
+            
         except Exception as e:
             print(f"Could not load logo image: {e}")
             # Fallback text if image fails to load
             tk.Label(self.title_bar, text="CeraTech", bg='#2c3e50', fg='white').pack(side=tk.LEFT, padx=10)
+        
+        self.close_btn = tk.Button(
+            self.top_frame,
+            text="✕",
+            font=('Arial', 12),
+            bg='#f0f0f0',
+            fg='#333333',
+            bd=0,
+            relief=tk.FLAT,
+            activebackground='#ff4444',
+            activeforeground='white',
+            command=self.root.destroy
+        )
+        self.close_btn.pack(side=tk.RIGHT, padx=10)
         
         # Variables
         self.current_file = tk.StringVar(value="No file selected")
