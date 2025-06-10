@@ -3,13 +3,35 @@ import uploader
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
+from PIL import Image, ImageTk
 
 class PrinterControlGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("3D Printer Control Interface")
+        self.root.title("CeraTech")
         self.root.geometry("600x400")
         self.root.configure(bg='#f0f0f0')
+        
+         # Remove the default title bar
+        self.root.overrideredirect(True)
+        
+        # Create a custom title bar
+        self.title_bar = tk.Frame(self.root, bg='#2c3e50', relief='raised', bd=0)
+        self.title_bar.pack(fill=tk.X)
+        
+        # Add your photo to the title bar
+        try:
+            # Replace 'logo.png' with your image path
+            self.logo_image = Image.open("CeraTech.png")
+            self.logo_image = self.logo_image.resize((30, 30), Image.LANCZOS)
+            self.logo_photo = ImageTk.PhotoImage(self.logo_image)
+            self.logo_label = tk.Label(self.title_bar, image=self.logo_photo, bg='#2c3e50')
+            self.logo_label.image = self.logo_photo  # Keep a reference
+            self.logo_label.pack(side=tk.LEFT, padx=5, pady=2)
+        except Exception as e:
+            print(f"Could not load logo image: {e}")
+            # Fallback text if image fails to load
+            tk.Label(self.title_bar, text="CeraTech", bg='#2c3e50', fg='white').pack(side=tk.LEFT, padx=10)
         
         # Variables
         self.current_file = tk.StringVar(value="No file selected")
