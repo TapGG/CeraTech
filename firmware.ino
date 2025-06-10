@@ -38,32 +38,39 @@ void moveZ(float z_mm);
 void extrude(float e_mm);
 
 void parseGCode(String gcode) {
+
+  // Find the semicolon position
+  int semicolonPos = gcode.indexOf(';');
+  // If found, remove everything from that position onward
+  if (semicolonPos != -1) {
+      gcode.remove(semicolonPos);
+  }
   gcode.trim();
   gcode.toUpperCase();
 
-    // if (gcode.startsWith("G90")) {
-    //   enableAbsolutePositioning();
-    // } else if (gcode.startsWith("G91")) {
-    //   enableRelativePosition();
-    // } else if (gcode.startsWith("M82")) {
-    //   enableAbsoluteExtrusion();
-    // } else if (gcode.startsWith("M83")) {
-    //   enableRelativeExtrusion();
-    // } else if (gcode.startsWith("G0") || gcode.startsWith("G1")) {
-    //   parseMove(gcode);
-    // } else if (gcode.startsWith("G92")) {
-    //   resetCoordinates();
-    // } else if (gcode.startsWith("G28")) {
-    //   homeAxes();
-    // } else if (gcode.startsWith("M17")) {
-    //   enableMotors();
-    // } else if (gcode.startsWith("M18")) {
-    //   disableMotors();
-    // } else if (gcode.startsWith("M114")) {
-    //   reportPosition();
-    // } else if (gcode.startsWith("M100")) {
-    //   countGcodeLines(gcode);
-    // }
+    if (gcode.startsWith("G90")) {
+      enableAbsolutePositioning();
+    } else if (gcode.startsWith("G91")) {
+      enableRelativePosition();
+    } else if (gcode.startsWith("M82")) {
+      enableAbsoluteExtrusion();
+    } else if (gcode.startsWith("M83")) {
+      enableRelativeExtrusion();
+    } else if (gcode.startsWith("G0") || gcode.startsWith("G1")) {
+      parseMove(gcode);
+    } else if (gcode.startsWith("G92")) {
+      resetCoordinates();
+    } else if (gcode.startsWith("G28")) {
+      homeAxes();
+    } else if (gcode.startsWith("M17")) {
+      enableMotors();
+    } else if (gcode.startsWith("M18")) {
+      disableMotors();
+    } else if (gcode.startsWith("M114")) {
+      reportPosition();
+    } else if (gcode.startsWith("M100")) {
+      countGcodeLines(gcode);
+    }
     // Request next line
     Serial.println(gcode);
     Serial.println("OK");

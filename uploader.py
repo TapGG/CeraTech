@@ -1,6 +1,6 @@
 import serial
 import time
-def main(filename):
+def main(filename='Gcode.txt'):
     # ---------------------
     # CONFIGURATION
     # ---------------------
@@ -21,6 +21,7 @@ def main(filename):
     # ---------------------
     try:
         with open(GCODE_FILE, 'r') as file:
+            start_time = time.time()
             # Get total lines for progress tracking
             total_lines = sum(1 for _ in file)
             file.seek(0)  # Reset file pointer to start
@@ -45,6 +46,8 @@ def main(filename):
                     if arduino.in_waiting:
                         response = arduino.readline().decode().strip()
                         print(f"<< Arduino: {response}")
+                        print(f"Parse Time = {time.time()- start_time}")
+                        start_time = time.time()
                         if response == "OK":
                             break
 
@@ -58,3 +61,6 @@ def main(filename):
     arduino.close()
     print("Done sending G-code.")
 
+if __name__ == '__main__':
+    print('test')
+    main()
