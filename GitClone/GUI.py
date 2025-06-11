@@ -11,7 +11,7 @@ class PrinterControlGUI:
         self.filePath = ''
         self.root = root
         self.root.title("CeraTech")
-        self.root.geometry("900x600")
+        self.root.geometry("1200x900")
         self.root.configure(bg='#f0f0f0')  # Main window background
         
         # Platform detection
@@ -109,6 +109,12 @@ class PrinterControlGUI:
         self.root.bind('<B1-Motion>', self.drag_window)
         self.top_frame.bind('<Button-1>', self.start_drag)
         self.top_frame.bind('<B1-Motion>', self.drag_window)
+        
+    def select_all_text(self, event):
+        """Select all text in an entry when it receives focus"""
+        entry = event.widget
+        entry.select_range(0, tk.END)  # Select all text
+        entry.icursor(tk.END)  # Move cursor to the end (better UX)
     
     def start_drag(self, event):
         """Start window drag operation"""
@@ -184,7 +190,7 @@ class PrinterControlGUI:
             text=upload_text,
             command=self.upload_file, 
             bg='#4CAF50', 
-            fg='white',
+            fg='black',
             font=self.get_font('Arial', 10, 'bold'), 
             relief='flat' if self.is_mac else 'raised',
             activebackground='#45a049',
@@ -263,7 +269,7 @@ class PrinterControlGUI:
             text=start_text,
             command=self.start_print, 
             bg='#2196F3', 
-            fg='white',
+            fg='black',
             activebackground='#1976D2',
             highlightbackground='#2196F3' if self.is_mac else '#2196F3',
             **base_button_config
@@ -277,7 +283,7 @@ class PrinterControlGUI:
             text=pause_text,
             command=self.pause_print, 
             bg='#FF9800', 
-            fg='white',
+            fg='black',
             activebackground='#F57C00',
             highlightbackground='#FF9800' if self.is_mac else '#FF9800',
             **base_button_config
@@ -291,18 +297,18 @@ class PrinterControlGUI:
             text=stop_text,
             command=self.stop_print, 
             bg='#F44336', 
-            fg='white',
+            fg='black',
             activebackground='#D32F2F',
             highlightbackground='#F44336' if self.is_mac else '#F44336',
             **base_button_config
         )
         stop_btn.pack(side='left')
         
-        # ===== NEW: COORDINATE CONTROL FRAME =====
+                # ===== NEW: COORDINATE CONTROL FRAME =====
         coord_frame = ttk.LabelFrame(self.root, text="Manual Position Control", padding="10")
         coord_frame.pack(fill='x', padx=20, pady=10)
 
-        # Variables for XYZ inputs
+        # Variables for XYZ inputs (keep "0" as default but make it selectable)
         self.x_offset = tk.StringVar(value="0")
         self.y_offset = tk.StringVar(value="0")
         self.z_offset = tk.StringVar(value="0")
@@ -311,22 +317,25 @@ class PrinterControlGUI:
         ttk.Label(coord_frame, text="X Offset:").grid(row=0, column=0, padx=5, pady=5, sticky='e')
         x_entry = ttk.Entry(coord_frame, textvariable=self.x_offset, width=8)
         x_entry.grid(row=0, column=1, padx=5, pady=5)
+        x_entry.bind("<FocusIn>", self.select_all_text)  # NEW: Auto-select on focus
 
         ttk.Label(coord_frame, text="Y Offset:").grid(row=1, column=0, padx=5, pady=5, sticky='e')
         y_entry = ttk.Entry(coord_frame, textvariable=self.y_offset, width=8)
         y_entry.grid(row=1, column=1, padx=5, pady=5)
+        y_entry.bind("<FocusIn>", self.select_all_text)  # NEW: Auto-select on focus
 
         ttk.Label(coord_frame, text="Z Offset:").grid(row=2, column=0, padx=5, pady=5, sticky='e')
         z_entry = ttk.Entry(coord_frame, textvariable=self.z_offset, width=8)
         z_entry.grid(row=2, column=1, padx=5, pady=5)
-        
-        # Move button (styled to match your UI)
+        z_entry.bind("<FocusIn>", self.select_all_text)  # NEW: Auto-select on focus
+            
+            # Move button (styled to match your UI)
         move_btn = tk.Button(
             coord_frame,
             text="Move",
             command=self.execute_relative_move,
             bg='#4CAF50',
-            fg='white',
+            fg='black',
             font=self.get_font('Arial', 10, 'bold'),
             relief='flat' if self.is_mac else 'raised',
             activebackground='#45a049',
@@ -408,11 +417,11 @@ class PrinterControlGUI:
     def pause_print(self):
         """Pause the current print"""
         if self.printer_status.get() == "Printing":
-            uploader.send_gcode('M18')
+            uploader.pause_print()
             self.printer_status.set("Paused")
             messagebox.showinfo("Print Paused", "Print job has been paused.")
         elif self.printer_status.get() == "Paused":
-            uploader.send_gcode('M17')
+            uploader.resume_print()
             self.printer_status.set("Printing")
             messagebox.showinfo("Print Resumed", "Print job has been resumed.")
             self.simulate_print_progress()  # Resume progress simulation
@@ -422,6 +431,7 @@ class PrinterControlGUI:
         if self.printer_status.get() in ["Printing", "Paused"]:
             result = messagebox.askyesno("Confirm Stop", "Are you sure you want to stop the print job?")
             if result:
+                uploader.stop_print()
                 self.printer_status.set("Ready")
                 self.print_progress.set(0)
                 messagebox.showinfo("Print Stopped", "Print job has been stopped.")
@@ -435,6 +445,9 @@ class PrinterControlGUI:
             
             # Example: Send G-code for relative movement
             gcode = f"G91\nG1 X{x} Y{y} Z{z}\nG90"  # Switch to relative, move, then back to absolute
+            gcode = gcode.splitlines
+            for line in gcode:
+                uploader.send_gcode(line)
             print(f"Sending G-code: {gcode}")  # Replace with your actual serial comms
             
             # Optional: Update status
@@ -443,17 +456,17 @@ class PrinterControlGUI:
             messagebox.showerror("Error", "Invalid offset values (must be numbers)")
         
                     
-        def simulate_print_progress(self):
-            """Simulate print progress for demo purposes"""
-            if self.printer_status.get() == "Printing" and self.print_progress.get() < 100:
-                current_progress = self.print_progress.get()
-                self.print_progress.set(current_progress + 1)
-                if current_progress + 1 >= 100:
-                    self.printer_status.set("Complete")
-                    messagebox.showinfo("Print Complete", "Print job finished successfully!")
-                else:
-                    # Continue progress simulation
-                    self.root.after(1000, self.simulate_print_progress)
+    def simulate_print_progress(self):
+        """Simulate print progress for demo purposes"""
+        if self.printer_status.get() == "Printing" and self.print_progress.get() < 100:
+            current_progress = self.print_progress.get()
+            self.print_progress.set(current_progress + 1)
+            if current_progress + 1 >= 100:
+                self.printer_status.set("Complete")
+                messagebox.showinfo("Print Complete", "Print job finished successfully!")
+            else:
+                # Continue progress simulation
+                self.root.after(1000, self.simulate_print_progress)
 
 def main():
     root = tk.Tk()
