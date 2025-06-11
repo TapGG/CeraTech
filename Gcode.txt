@@ -13,3 +13,4 @@ G1 X45 Y85 E15
 G1 X45 Y45 E20
 
 G1 Z5 F300     ; Lift Z after drawing
+M18

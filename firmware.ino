@@ -297,13 +297,14 @@ void loop() {
     linesProcessed++;
     updateProgress();
   }
+  else {
+    disableMotors();
+  }
 }
-// check serial.print is recieved by python 
-// commands to implement: 
-// must update gcode compiler with the functions move to coord
-// checking boundary (DONE)
-// we need some example test gcode (Tolly)
-// make parser include all the gcode commands (DONE)
-// add functions for each command (DONE)
-// progress of print (DONE)
-// Critical missing variables: Feedrate (DONE), homing pins (DONE), and mode flags(DONE).
+
+
+//bridge the gap between GUI and uploader(Tolly)
+//make sure GUI is consistent with MacOs and Windows and if buttons work (Sean)
+//Test all Gcode
+//calibration after getting stepper motors
+//Real time moving of the nozzle in XYZ for easier demonstration(VZ)
