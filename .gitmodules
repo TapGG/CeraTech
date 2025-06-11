@@ -1,0 +1,3 @@
+[submodule "CeraTech/firmware/Marlin"]
+	path = CeraTech/firmware/Marlin
+	url = https://github.com/MarlinFirmware/Marlin.git
